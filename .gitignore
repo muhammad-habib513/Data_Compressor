@@ -8,3 +8,7 @@ sample_out.txt
 test_input_small.bin
 test_archive_small.dcp
 test_output_small.bin
+test_input_*.bin
+test_output_*.bin
+test_archive_*.dcp
+restored_*.txt
