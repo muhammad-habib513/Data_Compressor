@@ -1,7 +1,11 @@
-#Project Members
-  Muhammad Habib  (22L-6951)
-  Shahjahan Sarfraz  (22L-6960)
-  Muhammad Shaheer   (22L-6942)
+#**Project Members**
+
+- Muhammad Habib  (22L-6951)
+- Shahjahan Sarfraz  (22L-6960)
+- Muhammad Shaheer   (22L-6942)
+
+  
+
 
 
 # Data Compression Project - Stage 1 (C++)
