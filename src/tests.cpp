@@ -1,6 +1,9 @@
+#include "ans.hpp"
 #include "bwt.hpp"
+#include "mtf.hpp"
 #include "pipeline.hpp"
 #include "rle1.hpp"
+#include "rle2.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -30,6 +33,46 @@ void test_bwt_roundtrip() {
     auto transformed = bwt::transform(data);
     vector<uint8_t> restored = bwt::inverse_transform(transformed.first, transformed.second);
     expect_true(restored == data, "BWT roundtrip mismatch");
+}
+
+void test_mtf_roundtrip() {
+    vector<uint8_t> data;
+    for (int i = 0; i < 2000; ++i) {
+        data.push_back(static_cast<uint8_t>((i * 17) % 256));
+        if ((i % 7) == 0) {
+            data.push_back(static_cast<uint8_t>('A'));
+            data.push_back(static_cast<uint8_t>('A'));
+            data.push_back(static_cast<uint8_t>('A'));
+        }
+    }
+    vector<uint8_t> enc = mtf::encode(data);
+    vector<uint8_t> dec = mtf::decode(enc);
+    expect_true(dec == data, "MTF roundtrip mismatch");
+}
+
+void test_rle2_roundtrip() {
+    vector<uint8_t> data = {
+        0, 0, 0, 0, 0, 1, 2, 3, 3, 3, 3, 255, 255, 255, 255, 10, 11, 12, 12, 12, 12, 12
+    };
+    vector<uint8_t> enc = rle2::encode(data);
+    vector<uint8_t> dec = rle2::decode(enc);
+    expect_true(dec == data, "RLE-2 roundtrip mismatch");
+}
+
+void test_ans_roundtrip() {
+    vector<uint8_t> data;
+    data.reserve(5000);
+    for (int i = 0; i < 5000; ++i) {
+        data.push_back(static_cast<uint8_t>((i * 31 + (i / 7)) % 256));
+        if ((i % 9) == 0) {
+            data.push_back(0);
+            data.push_back(0);
+            data.push_back(0);
+        }
+    }
+    vector<uint8_t> enc = ans::encode(data);
+    vector<uint8_t> dec = ans::decode(enc);
+    expect_true(dec == data, "ANS roundtrip mismatch");
 }
 
 void write_payload_file(const string& file_name, const vector<uint8_t>& payload) {
@@ -76,6 +119,9 @@ int main() {
     try {
         test_rle_roundtrip();
         test_bwt_roundtrip();
+        test_mtf_roundtrip();
+        test_rle2_roundtrip();
+        test_ans_roundtrip();
         test_file_pipeline_roundtrip();
         cout << "All tests passed.\n";
         return 0;

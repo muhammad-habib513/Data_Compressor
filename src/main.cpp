@@ -18,7 +18,7 @@ void print_usage() {
         << "Usage:\n"
         << "  compressor encode <input_file> <output_file> <block_size_kb>\n"
         << "  compressor decode <input_file> <output_file>\n\n"
-        << "Stage 1 encode pipeline: RLE-1 then BWT\n"
+        << "Stage 3 encode pipeline: RLE-1 -> BWT -> MTF -> RLE-2 -> ANS\n"
         << "Block size range: 100KB to 900KB\n";
 }
 

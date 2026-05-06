@@ -1,7 +1,10 @@
 #include "pipeline.hpp"
 
+#include "ans.hpp"
 #include "bwt.hpp"
+#include "mtf.hpp"
 #include "rle1.hpp"
+#include "rle2.hpp"
 
 #include <cstdint>
 #include <fstream>
@@ -16,7 +19,7 @@ namespace pipeline {
 
 namespace {
 
-constexpr char kMagic[4] = {'D', 'C', 'P', '3'};
+constexpr char kMagic[4] = {'D', 'C', 'P', '6'};
 constexpr size_t kHeaderSize = 4 + 4;
 
 void write_u32(ofstream& out, uint32_t value) {
@@ -73,7 +76,9 @@ Stats compress_file(const string& input_path, const string& output_path, size_t 
         vector<uint8_t> raw(block.begin(), block.begin() + got);
         vector<uint8_t> rle_encoded = rle1::encode(raw);
         auto bwt_res = bwt::transform(rle_encoded);
-        vector<uint8_t> encoded = move(bwt_res.first);
+        vector<uint8_t> mtf_encoded = mtf::encode(bwt_res.first);
+        vector<uint8_t> rle2_encoded = rle2::encode(mtf_encoded);
+        vector<uint8_t> encoded = ans::encode(rle2_encoded);
         uint32_t primary_index = bwt_res.second;
 
         write_u32(output, static_cast<uint32_t>(got));
@@ -130,7 +135,10 @@ Stats decompress_file(const string& input_path, const string& output_path) {
             ensure_read_ok(input, "Failed to read encoded block payload.");
         }
 
-        vector<uint8_t> rle_encoded = bwt::inverse_transform(encoded, primary_index);
+        vector<uint8_t> rle2_encoded = ans::decode(encoded);
+        vector<uint8_t> mtf_encoded = rle2::decode(rle2_encoded);
+        vector<uint8_t> bwt_last = mtf::decode(mtf_encoded);
+        vector<uint8_t> rle_encoded = bwt::inverse_transform(bwt_last, primary_index);
         vector<uint8_t> raw = rle1::decode(rle_encoded);
 
         if (raw.size() != original_size) {
