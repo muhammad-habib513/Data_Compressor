@@ -1,0 +1,5 @@
+*.o
+compressor
+tests
+*.bz2
+*_restored.txt
